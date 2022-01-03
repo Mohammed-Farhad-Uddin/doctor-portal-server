@@ -4,6 +4,7 @@ const cors = require('cors');
 const fs = require('fs-extra');//mod-55.5 vid-4. img er jnno
 const app = express();
 const { MongoClient } = require('mongodb');
+const { ObjectId } = require('mongodb');//database tekhe ObjectId get korar jnno ei ta korte hoi
 const port = 5000;
 const fileUpload = require('express-fileupload');//mod-55.5 v-1.//file upload er jnno express-fileupload install kore ei gula bosate hoi.
 //jwt token
@@ -42,9 +43,9 @@ client.connect(err => {
   const adminCollection = client.db(`${process.env.DB_NAME}`).collection(`${process.env.DB_CollectAdmin}`);
   // console.log(err)
 
-//insert one admin
-  app.post('/admin',(req,res)=>{
-    const admin=req.body
+  //insert one admin
+  app.post('/admin', (req, res) => {
+    const admin = req.body
     adminCollection.insertOne(admin)
   })
 
@@ -150,8 +151,8 @@ client.connect(err => {
     const img = file.name
     // console.log(name, email, file, img,  loginEmail);
 
-    adminCollection.find({email: loginEmail}).toArray((err,doctor)=>{
-      if(doctor.length>0){
+    adminCollection.find({ email: loginEmail }).toArray((err, doctor) => {
+      if (doctor.length > 0) {
         const filePath = `${__dirname}/doctors/${file.name}`//mod-55.5 vid-4
         file.mv(filePath, (err) => {//mod-55.5 vid-1
           if (err) {
@@ -179,9 +180,9 @@ client.connect(err => {
           // res.send({ name: file.name, path: `/${file.name}` })
         })
       }
-      else{res.send(false)}
+      else { res.send(false) }
     })
-     
+
   });
 
 
@@ -194,11 +195,11 @@ client.connect(err => {
     //     .then((decodedToken) => {
     //       const descyptedInfo=decodedToken
     //       ///upore if contion diye (/patients) e loginUser.email==decodedToken.email ei ta na korleo hobe
-          doctorsCollection.find({})
-          .toArray((err, documents) => {
-            // console.log(documents)
-            err ? res.status(500).send(err) : res.send(documents)
-          })
+    doctorsCollection.find({})
+      .toArray((err, documents) => {
+        // console.log(documents)
+        err ? res.status(500).send(err) : res.send(documents)
+      })
     //     })
     // }else{
     //   res.status(401).send('Un-Authorized Access, get out from here')
@@ -213,6 +214,30 @@ client.connect(err => {
         res.send(doctor.length > 0) //length jodi 0 tekhe boro hoi mane condition jodi true hoi.tahole true send korbe
       })
   });
+
+
+  ///change status
+  app.patch('/changeStatus/:id', (req, res) => {
+    doctorsCollection.find({ email:req.body.email }).toArray((err, document) => {
+      if (document.length > 0) {
+        // const id = req.params.id;
+        // const chnafe=req.body.change;
+        //  console.log(id,chnafe);
+        appointmentCollection.updateOne({ _id: ObjectId(req.params.id) },
+          {
+            $set: { status: req.body.change }
+          })
+          .then(result => {
+            // console.log(result)
+            res.send(result.modifiedCount>0)
+          })
+      } else {
+        res.send(false)
+      }
+    })
+  });
+
+
 
 
 
