@@ -153,32 +153,34 @@ client.connect(err => {
 
     adminCollection.find({ email: loginEmail }).toArray((err, doctor) => {
       if (doctor.length > 0) {
-        const filePath = `${__dirname}/doctors/${file.name}`//mod-55.5 vid-4
-        file.mv(filePath, (err) => {//mod-55.5 vid-1
-          if (err) {
-            console.log(err)
-            res.status(500).send({ msg: "Failed to Upload Image" })
-          }
-          const newImg = fs.readFileSync(filePath)//mod-55.5 vid-4
-          const encodedImg = newImg.toString('base64')
-          const imageInfo = {
-            contentType: req.files.file.mimetype,
-            size: req.files.file.size,
-            img: Buffer(encodedImg, 'base64')
-          }
-          doctorsCollection.insertOne({ name, email, imageInfo })
-            .then(result => {
-              fs.remove(filePath, error => {//mod-55.5 vid-4
-                if (error) {
-                  console.log(error)
-                  res.status(500).send({ msg: "Failed to Upload Image" })
-                }
-                res.send(result.acknowledged)
-              })
-              console.log(result)
-            })
-          // res.send({ name: file.name, path: `/${file.name}` })
-        })
+        // const filePath = `${__dirname}/doctors/${file.name}`//mod-55.5 vid-4
+        // file.mv(filePath, (err) => {//mod-55.5 vid-1
+        //   if (err) {
+        //     console.log(err)
+        //     res.status(500).send({ msg: "Failed to Upload Image" })
+        //   }
+        // const newImg = fs.readFileSync(filePath)//mod-55.5 vid-4
+        const newImg = req.files.file.data
+        const encodedImg = newImg.toString('base64')
+        const imageInfo = {
+          contentType: req.files.file.mimetype,
+          size: req.files.file.size,
+          // img: Buffer(encodedImg, 'base64')
+          img: Buffer.from(encodedImg, 'base64')
+        }
+        doctorsCollection.insertOne({ name, email, imageInfo })
+          .then(result => {
+            // fs.remove(filePath, error => {//mod-55.5 vid-4
+            //   if (error) {
+            //     console.log(error)
+            //     res.status(500).send({ msg: "Failed to Upload Image" })
+            //   }
+            res.send(result.acknowledged)
+            // })
+            console.log(result)
+          })
+        // res.send({ name: file.name, path: `/${file.name}` })
+        // })
       }
       else { res.send(false) }
     })
@@ -218,7 +220,7 @@ client.connect(err => {
 
   ///change status
   app.patch('/changeStatus/:id', (req, res) => {
-    doctorsCollection.find({ email:req.body.email }).toArray((err, document) => {
+    doctorsCollection.find({ email: req.body.email }).toArray((err, document) => {
       if (document.length > 0) {
         // const id = req.params.id;
         // const chnafe=req.body.change;
@@ -229,7 +231,7 @@ client.connect(err => {
           })
           .then(result => {
             // console.log(result)
-            res.send(result.modifiedCount>0)
+            res.send(result.modifiedCount > 0)
           })
       } else {
         res.send(false)
