@@ -227,6 +227,7 @@ client.connect(err => {
         //  console.log(id,chnafe);
         appointmentCollection.updateOne({ _id: ObjectId(req.params.id) },
           {
+            // $set: { status: "visited" }
             $set: { status: req.body.change }
           })
           .then(result => {
