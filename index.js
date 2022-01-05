@@ -10,7 +10,7 @@ const fileUpload = require('express-fileupload');//mod-55.5 v-1.//file upload er
 //jwt token
 const { initializeApp } = require('firebase-admin/app');
 const admin = require("firebase-admin");
-const serviceAccount = require("./configs/doctors-portal-460d9-firebase-adminsdk-cvqb9-faca764681.json");
+const serviceAccount = require("./configs/AdminSDK.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: `https://${process.env.DB_NAME}.firebaseio.com`
